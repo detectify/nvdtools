@@ -160,3 +160,36 @@ func TestScoresV30V31(t *testing.T) {
 		}
 	}
 }
+
+func TestScoresZeroImpact(t *testing.T) {
+	vec := "AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N"
+
+	// If we have impact of 0 and exploitability of e.g. 3.9, the overall score must still be 0.
+	// According to https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator/:
+	// The Base Score is a function of the Impact and Exploitability sub score equations. Where the Base score is defined as,
+	//    If (Impact sub score <= 0)     0 else,
+	//    ...
+	for _, c := range []struct {
+		ver                           version
+		base, temporal, environmental float64
+	}{
+		{version(0), 0, 0, 0},
+		{version(1), 0, 0, 0},
+	} {
+		fullVec := fmt.Sprintf("%s%s/%s", prefix, c.ver, vec)
+		v, err := VectorFromString(fullVec)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if base := v.BaseScore(); base != c.base {
+			t.Fatalf("v %s: base score wrong: have %.1f, want %.1f", c.ver, base, c.base)
+		}
+		if temporal := v.TemporalScore(); temporal != c.temporal {
+			t.Fatalf("v %s: temporal score wrong: have %.1f, want %.1f", c.ver, temporal, c.temporal)
+		}
+		if environmental := v.EnvironmentalScore(); environmental != c.environmental {
+			t.Fatalf("v %s: environmental score wrong: have %.1f, want %.1f", c.ver, environmental, c.environmental)
+		}
+	}
+}
