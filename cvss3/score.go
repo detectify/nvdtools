@@ -58,7 +58,7 @@ func (v Vector) Score() float64 {
 // BaseScore returns base score of the vector
 func (v Vector) BaseScore() float64 {
 	i, e := v.impactScore(), v.exploitabilityScore()
-	if i < 0 {
+	if i <= 0 {
 		return 0
 	}
 	c := 1.0
@@ -98,7 +98,7 @@ func (v Vector) TemporalScore() float64 {
 // EnvironmentalScore returns environmental score of the vector
 func (v Vector) EnvironmentalScore() float64 {
 	i, e := v.modifiedImpactScore(), v.modifiedExploitabilityScore()
-	if i < 0 {
+	if i <= 0 {
 		return 0
 	}
 	c := 1.0
